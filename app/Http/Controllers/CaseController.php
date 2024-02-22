@@ -22,4 +22,13 @@ class CaseController extends Controller
             return response()->json(['message' => 'Post not found'], 404);
         }
     }
+    
+    public function store(Request $request)
+    {
+        $case = new Cases();
+        $case->title = $request->input('title');
+        $case->content = $request->input('content');
+        $case->save();
+        return response()->json($case);
+    }
 }

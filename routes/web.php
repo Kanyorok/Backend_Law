@@ -20,3 +20,4 @@ Route::get('/', function () {
 
 Route::get('/cases', [CaseController::class, 'index']);
 Route::get('/cases/{id}', [CaseController::class, 'show']);
+Route::post('/cases', [CaseController::class, 'store']);
