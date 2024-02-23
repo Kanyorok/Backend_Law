@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CaseController;
 use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +16,3 @@ use Illuminate\Http\Request;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/cases', [CaseController::class, 'index']);
-Route::get('/cases/{id}', [CaseController::class, 'show']);
-Route::post('/cases', [CaseController::class, 'store']);
