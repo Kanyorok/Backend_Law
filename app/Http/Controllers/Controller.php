@@ -11,10 +11,4 @@ use App\Models\User;
 class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
-
-    public function someMethod()
-    {
-        $user = User::first();
-        // Your code here
-    }
 }
