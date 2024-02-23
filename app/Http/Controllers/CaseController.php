@@ -10,7 +10,7 @@ class CaseController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api')->except(['show']);
+        $this->middleware('auth:api');
     }
 
     public function index()
@@ -33,11 +33,16 @@ class CaseController extends Controller
 
     public function show($id)
     {
+        $user = Auth::user();
+
         $case = Cases::find($id);
         if ($case) {
+            if ($case->user_id !== $user->id) {
+                return response()->json(['message' => 'Cannot show case'], 403);
+            }
             return response()->json($case);
         } else {
-            return response()->json(['message' => 'Post not found'], 404);
+            return response()->json(['message' => 'Case not found'], 404);
         }
     }
     
