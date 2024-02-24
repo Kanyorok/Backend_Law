@@ -29,3 +29,4 @@ Route::group(['prefix' => 'auth'], function () {
 Route::get('/cases', [CaseController::class, 'index']);
 Route::get('/cases/{id}', [CaseController::class, 'show']);
 Route::post('/cases', [CaseController::class, 'store']);
+Route::put('/cases/{id}', [CaseController::class, 'update']);
