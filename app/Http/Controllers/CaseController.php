@@ -21,7 +21,9 @@ class CaseController extends Controller
             return response()->json(['message' => 'Please sign in first'], 401);
         }
 
-        $cases = Cases::where('user_id', $user->id)->get(); 
+        $cases = Cases::where('user_id', $user->id)
+                       ->orderBy('created_at', 'desc')
+                       ->get(); 
         
         if ($cases->isEmpty()) {
             return response()->json(['message' => 'No cases created by this user'], 404);
