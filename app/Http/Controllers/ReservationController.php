@@ -61,7 +61,11 @@ class ReservationController extends Controller
     
         $reservation = new Reservation($data);
         $reservation->user_id = $user->id;
-        $reservation->save();
+        if($reservation->save()){
+            return response()->json(['data' => 'Reservation was added successfully', 'status' => 'success'], 200);
+        } else {
+            return response()->json(['error' => 'Case was not created.'], 500);
+        }
     
         return response()->json($reservation, 201);
     }
