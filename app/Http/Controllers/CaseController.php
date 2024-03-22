@@ -13,7 +13,7 @@ class CaseController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user(); 
         
@@ -21,12 +21,21 @@ class CaseController extends Controller
             return response()->json(['message' => 'Please sign in first'], 401);
         }
 
-        $cases = Cases::where('user_id', $user->id)
-                       ->orderBy('created_at', 'desc')
-                       ->get(); 
+        $query = $request->query('q');
+
+        $per_page = $request->input('per_page', 5);
+
+        $casesQuery = Cases::where('user_id', $user->id);
+
+        if ($query) {
+            $casesQuery->where('title', 'LIKE', '%' . $query . '%')
+                    ->orWhere('description', 'LIKE', '%' . $query . '%'); 
+        }
+
+        $cases = $casesQuery->orderBy('created_at', 'desc')->latest()->paginate($per_page); 
         
         if ($cases->isEmpty()) {
-            return response()->json(['message' => 'No cases created by this user'], 404);
+            return response()->json(['message' => 'No cases found'], 404);
         }
         
         return response()->json($cases);
