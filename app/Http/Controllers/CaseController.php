@@ -25,7 +25,12 @@ class CaseController extends Controller
 
         $per_page = $request->input('per_page', 5);
 
-        $casesQuery = Cases::where('user_id', $user->id);
+        // Check if the user is an admin
+        if ($user->role === 'admin') {
+            $casesQuery = Cases::query();
+        } else {
+            $casesQuery = Cases::where('user_id', $user->id);
+        }
 
         if ($query) {
             $casesQuery->where('title', 'LIKE', '%' . $query . '%')
@@ -47,10 +52,11 @@ class CaseController extends Controller
 
         $case = Cases::find($id);
         if ($case) {
-            if ($case->user_id !== $user->id) {
+            if ($case->user_id !== $user->id && $user->role !== 'admin') {
                 return response()->json(['message' => 'Cannot show case'], 403);
+            } else if($user->role === 'admin' || $user->role === 'user') {
+                return response()->json($case);
             }
-            return response()->json($case);
         } else {
             return response()->json(['message' => 'Case not found'], 404);
         }
