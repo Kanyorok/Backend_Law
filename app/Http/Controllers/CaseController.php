@@ -13,7 +13,7 @@ class CaseController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user(); 
         
@@ -21,12 +21,26 @@ class CaseController extends Controller
             return response()->json(['message' => 'Please sign in first'], 401);
         }
 
-        $cases = Cases::where('user_id', $user->id)
-                       ->orderBy('created_at', 'desc')
-                       ->get(); 
+        $query = $request->query('q');
+
+        $per_page = $request->input('per_page', 5);
+
+        // Check if the user is an admin
+        if ($user->role === 'admin') {
+            $casesQuery = Cases::query();
+        } else {
+            $casesQuery = Cases::where('user_id', $user->id);
+        }
+
+        if ($query) {
+            $casesQuery->where('title', 'LIKE', '%' . $query . '%')
+                    ->orWhere('description', 'LIKE', '%' . $query . '%'); 
+        }
+
+        $cases = $casesQuery->orderBy('created_at', 'desc')->latest()->paginate($per_page); 
         
         if ($cases->isEmpty()) {
-            return response()->json(['message' => 'No cases created by this user'], 404);
+            return response()->json(['message' => 'No cases found'], 404);
         }
         
         return response()->json($cases);
@@ -38,10 +52,11 @@ class CaseController extends Controller
 
         $case = Cases::find($id);
         if ($case) {
-            if ($case->user_id !== $user->id) {
+            if ($case->user_id !== $user->id && $user->role !== 'admin') {
                 return response()->json(['message' => 'Cannot show case'], 403);
+            } else if($user->role === 'admin' || $user->role === 'user') {
+                return response()->json($case);
             }
-            return response()->json($case);
         } else {
             return response()->json(['message' => 'Case not found'], 404);
         }
