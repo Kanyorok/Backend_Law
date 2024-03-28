@@ -27,11 +27,17 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
-Route::get('/cases', [CaseController::class, 'index']);
-Route::get('/cases/{id}', [CaseController::class, 'show']);
-Route::post('/cases', [CaseController::class, 'store']);
-Route::put('/cases/{id}', [CaseController::class, 'update']);
+Route::prefix('cases')->group(function(){
+    Route::get('/', [CaseController::class, 'index']);
+    Route::get('{id}', [CaseController::class, 'show']);
+    Route::post('/', [CaseController::class, 'store']);
+    Route::put('{id}', [CaseController::class, 'update']);
 
-Route::get('/reservations', [ReservationController::class, 'index']);
-Route::get('/reservations/{id}', [ReservationController::class, 'show']);
-Route::post('/reservations', [ReservationController::class, 'store']);
+});
+
+Route::prefix('reservations')->group(function(){
+    Route::get('/', [ReservationController::class, 'index']);
+    Route::get('{id}', [ReservationController::class, 'show']);
+    Route::delete('{id}', [ReservationController::class, 'delete']);
+    Route::post('/', [ReservationController::class, 'store']);
+});

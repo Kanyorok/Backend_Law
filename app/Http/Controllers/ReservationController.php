@@ -81,4 +81,23 @@ class ReservationController extends Controller
     
         return response()->json($reservation, 201);
     }
+
+    public function delete(Request $request, $id) {
+        $user = Auth::user();
+    
+        $reservation = Reservation::find($id);
+    
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found'], 404);
+        }
+    
+        if ($user->role !== 'admin') {
+            return response()->json(['message' => 'Cannot delete reservation'], 403);
+        }
+    
+        // If user is admin and reservation exists, proceed to delete it
+        $reservation->delete();
+    
+        return response()->json(['message' => 'Reservation deleted successfully'], 200);
+    }
 }
