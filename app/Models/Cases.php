@@ -29,6 +29,11 @@ class Cases extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function casestakeholder()
+    {
+        return $this->HasMany(CaseStakeholder::class);
+    }
+
     public function getLawyerAttribute(): ?string
     {
         if ($this->user) {
