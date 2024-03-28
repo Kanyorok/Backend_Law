@@ -13,7 +13,7 @@ class ReservationController extends Controller
         $this->middleware('auth:api');
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user(); 
         
@@ -21,9 +21,21 @@ class ReservationController extends Controller
             return response()->json(['message' => 'Please sign in first'], 401);
         }
 
-        $reservations = Reservation::where('user_id', $user->id)
-                       ->orderBy('appointment_date', 'desc')
-                       ->get(); 
+        $query = $request->query('q');
+
+        $per_page = $request->input('per_page', 5);
+
+        if($user->role === 'admin') {
+            $reservationsQuery = Reservation::query();
+        }else {
+            $reservationsQuery = Reservation::where('user_id', $user->id);
+        }
+
+        if ($query) {
+            $reservationsQuery -> where('description', 'LIKE', '%'.$query.'%');
+        }
+        
+        $reservations = $reservationsQuery->orderBy('appointment_date', 'desc')->latest()->paginate($per_page); 
         
         if ($reservations->isEmpty()) {
             return response()->json(['message' => 'No reservations created by this user'], 404);
@@ -68,5 +80,24 @@ class ReservationController extends Controller
         }
     
         return response()->json($reservation, 201);
+    }
+
+    public function delete(Request $request, $id) {
+        $user = Auth::user();
+    
+        $reservation = Reservation::find($id);
+    
+        if (!$reservation) {
+            return response()->json(['message' => 'Reservation not found'], 404);
+        }
+    
+        if ($user->role !== 'admin') {
+            return response()->json(['message' => 'Cannot delete reservation'], 403);
+        }
+    
+        // If user is admin and reservation exists, proceed to delete it
+        $reservation->delete();
+    
+        return response()->json(['message' => 'Reservation deleted successfully'], 200);
     }
 }
